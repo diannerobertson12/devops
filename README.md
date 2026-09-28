@@ -5,3 +5,4 @@
 [![LICENSE](https://img.shields.io/github/license/diannerobertson12/devops.svg?style=flat-square)](https://github.com/diannerobertson12/devops/blob/main/LICENSE)
 
 [![Releases](https://img.shields.io/github/release/diannerobertson12/devops/all.svg?style=flat-square)](https://github.com/diannerobertson12/devops/releases)
+![Develop build](https://github.com/diannerobertson12/devops/actions/workflows/main.yml/badge.svg?branch=develop)
