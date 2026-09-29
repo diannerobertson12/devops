@@ -1,30 +1,33 @@
 package org.example;
 
-import com.mongodb.MongoClient;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
-import org.bson.Document;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 
 public class App {
-    public static void main(String[] args) {
-            try (MongoClient mongoClient = new MongoClient("mongo-dbserver")) {
-            MongoDatabase database = mongoClient.getDatabase("mydb");
-            MongoCollection<Document> collection =
-                    database.getCollection("test");
+    public static void main(String[] args) throws InterruptedException {
+        int retries = 10;
 
-            Document doc = new Document("name", "Dianne Robertson")
-                    .append("class", "DevOps")
-                    .append("year", "2026")
-                    .append("result",
-                            new Document("CW", 95).append("EX", 85));
+        for (int attempt = 1; attempt <= retries; attempt++) {
+            System.out.println("Connecting to database... attempt " + attempt);
 
-            collection.insertOne(doc);
+            // Give MySQL time to start and load its data.
+            Thread.sleep(30000);
 
-            Document myDoc = collection.find().first();
-            if (myDoc != null) {
-                System.out.println(myDoc.toJson());
+            try (Connection connection = DriverManager.getConnection(
+                    "jdbc:mysql://db:3306/employees"
+                            + "?allowPublicKeyRetrieval=true&useSSL=false",
+                    "root",
+                    "example")) {
+
+                System.out.println("Successfully connected");
+                return;
+
+            } catch (SQLException e) {
+                System.out.println("Failed to connect: " + e.getMessage());
             }
         }
+
+        throw new IllegalStateException("Could not connect to MySQL after all attempts.");
     }
 }
-
