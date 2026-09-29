@@ -3,6 +3,8 @@ package org.example;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 
 public class App {
     private Connection con;
@@ -12,6 +14,15 @@ public class App {
 
         try {
             app.connect();
+            Employee employee = app.getEmployee(10001);
+
+            if (employee != null) {
+                System.out.println("Employee number: " + employee.emp_no);
+                System.out.println("Name: " + employee.first_name
+                        + " " + employee.last_name);
+            } else {
+                throw new IllegalStateException("Employee 10001 was not found.");
+            }
         } finally {
             app.disconnect();
         }
@@ -54,4 +65,27 @@ public class App {
             }
         }
     }
+
+public Employee getEmployee(int id) {
+    String sql = "SELECT emp_no, first_name, last_name "
+            + "FROM employees WHERE emp_no = ?";
+
+    try (PreparedStatement statement = con.prepareStatement(sql)) {
+        statement.setInt(1, id);
+
+        try (ResultSet results = statement.executeQuery()) {
+            if (results.next()) {
+                Employee employee = new Employee();
+                employee.emp_no = results.getInt("emp_no");
+                employee.first_name = results.getString("first_name");
+                employee.last_name = results.getString("last_name");
+                return employee;
+            }
+
+            return null;
+        }
+    } catch (SQLException e) {
+        throw new IllegalStateException("Failed to get employee details", e);
+    }
+}
 }
